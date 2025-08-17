@@ -1,6 +1,7 @@
 from db.connect_db import db
 from datetime import datetime
 
+
 class Post(db.Model):
     __tablename__ = 'posts'
 

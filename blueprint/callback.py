@@ -13,9 +13,9 @@ load_dotenv()
 APP_ID = os.getenv("APP_ID")
 APP_SECRET = os.getenv("APP_SECRET")
 REDIRECT_URI = os.getenv("REDIRECT_URI")
-BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 callback_bp = Blueprint('callback', __name__)
+
 
 @callback_bp.get('/callback')
 def callback():
@@ -50,12 +50,6 @@ def callback():
     user_res = requests.get(user_info_url, params=user_params)
     user_data = user_res.json()
 
-    print("Facebook User Data:", user_data)
-    
-    
-    # print("Access Token Response:", data)
-    # print(data["access_token"], data["expires_in"])
-
     if "access_token" not in data:
         return jsonify(data), 400
     
@@ -74,7 +68,7 @@ def callback():
         db.session.commit()
     else:
         # Update access token if user exists
-        user.access_token = access_token
+        user.facebook_access_token = access_token
         db.session.commit()
 
     # Notify the Telegram user
