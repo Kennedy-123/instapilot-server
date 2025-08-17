@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: instapilot
+    env: python
+    buildCommand: "uv sync --frozen && uv cache prune --ci"
+    startCommand: "gunicorn app:app"
+    releaseCommand: "flask db upgrade"
