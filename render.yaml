@@ -4,4 +4,10 @@ services:
     env: python
     buildCommand: "uv sync --frozen && uv cache prune --ci"
     startCommand: "gunicorn app:app"
-    releaseCommand: "flask db upgrade"
+
+  - type: worker
+    name: instapilot-migrate
+    env: python
+    buildCommand: "uv sync --frozen && uv cache prune --ci"
+    startCommand: "flask db upgrade"
+    autoDeploy: false
