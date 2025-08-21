@@ -1,10 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 
 db = SQLAlchemy()
-migrate = Migrate()
+
 
 def connect_db(app):
     db.init_app(app)
-    migrate.init_app(app, db)
+    with app.app_context():
+        db.create_all()   # creates tables if they don’t exist
     print("Database connected successfully")
