@@ -1,5 +1,5 @@
 from db.connect_db import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class Post(db.Model):
@@ -10,7 +10,7 @@ class Post(db.Model):
     media_url = db.Column(db.String(200), nullable=True)
     scheduled_time = db.Column(db.DateTime, nullable=True)
     published = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Foreign Keys
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

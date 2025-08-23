@@ -59,6 +59,7 @@ def callback():
     if not user:
         new_user = User(
             facebook_name=user_data.get("name"),
+            telegram_id=telegram_id,
             facebook_id=user_data["id"],
             facebook_access_token=access_token,
             facebook_token_expires_at=calculate_expiry(data["expires_in"]),

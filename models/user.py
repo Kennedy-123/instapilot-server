@@ -6,6 +6,7 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
+    telegram_id = db.Column(db.String(80), unique=True, nullable=False)
     facebook_name = db.Column(db.String(80), nullable=False, unique=True)
     facebook_access_token = db.Column(db.String(512))
     facebook_id = db.Column(db.String(80), nullable=False, unique=True)
