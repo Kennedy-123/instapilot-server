@@ -13,7 +13,7 @@ class Post(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Foreign Keys
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.telegram_id'), nullable=False)
 
     # Relationships
     author = db.relationship('User', back_populates='posts')
