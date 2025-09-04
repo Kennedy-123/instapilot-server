@@ -8,8 +8,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     media_url = db.Column(db.String(200), nullable=True)
-    scheduled_date = db.Column(db.Date, nullable=True)
-    scheduled_time = db.Column(db.Time, nullable=True)
+    scheduled_time = db.Column(db.DateTime, nullable=True)
     published = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
