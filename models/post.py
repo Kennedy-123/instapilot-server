@@ -7,13 +7,13 @@ class Post(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
-    media_url = db.Column(nullable=True)
+    media_url = db.Column(db.Text, nullable=True)
     scheduled_time = db.Column(db.DateTime, nullable=True)
     published = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Foreign Keys
-    author_id = db.Column(db.Integer, db.ForeignKey('users.telegram_id'), nullable=False)
+    author_id = db.Column(db.BigInteger, db.ForeignKey('users.telegram_id'), nullable=False)
 
     # Relationships
     author = db.relationship('User', back_populates='posts')
