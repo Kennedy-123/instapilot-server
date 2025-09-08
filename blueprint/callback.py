@@ -50,9 +50,33 @@ def callback():
         }
         user_res = requests.get(user_info_url, params=user_params)
         user_data = user_res.json()
+        
+        # Default: no Instagram ID yet
+        instagram_id = None
 
-        if "access_token" not in data:
-            return jsonify(data), 400
+        # Step 1: Get pages managed by the user
+        pages_url = "https://graph.facebook.com/me/accounts"
+        pages_res = requests.get(pages_url, params={"access_token": access_token})
+        pages_data = pages_res.json()
+
+        if "data" in pages_data and len(pages_data["data"]) > 0:
+            for page in pages_data["data"]:
+                page_id = page.get("id")
+
+                # Step 2: Check if page has an Instagram business account
+                page_url = f"https://graph.facebook.com/{page_id}"
+                page_res = requests.get(
+                    page_url,
+                    params={
+                        "fields": "instagram_business_account",
+                        "access_token": access_token,
+                    },
+                )
+                page_info = page_res.json()
+
+                if "instagram_business_account" in page_info:
+                    instagram_id = page_info["instagram_business_account"]["id"]
+                    break  # take the first connected IG account
         
         # Save user to database
         user = User.query.filter_by(facebook_name=user_data.get("name")).first()
@@ -61,7 +85,7 @@ def callback():
             new_user = User(
                 facebook_name=user_data.get("name"),
                 telegram_id=telegram_id,
-                facebook_id=user_data["id"],
+                facebook_id=instagram_id,
                 facebook_access_token=access_token,
                 facebook_token_expires_at=calculate_expiry(data["expires_in"]),
                 created_at=datetime.now(timezone.utc)
@@ -71,6 +95,7 @@ def callback():
         else:
             # Update access token if user exists
             user.facebook_access_token = access_token
+            user.facebook_id = instagram_id
             db.session.commit()
 
         # Notify the Telegram user
