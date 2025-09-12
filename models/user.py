@@ -9,8 +9,7 @@ class User(db.Model):
     telegram_id = db.Column(db.BigInteger, unique=True, nullable=False)
     facebook_name = db.Column(db.String(80), nullable=False, unique=True)
     facebook_access_token = db.Column(db.String(512))
-    facebook_id = db.Column(db.String(80), nullable=False, unique=True)
-    facebook_token_expires_at = db.Column(db.DateTime)
+    instagram_id = db.Column(db.String(80), nullable=True, unique=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Relationships

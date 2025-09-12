@@ -7,12 +7,14 @@ from models import *
 app = Flask(__name__)
 
 # config
-if os.getenv("FLASK_ENV") == "development":
-    # Local database (dev)
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("LOCAL_DATABASE_URL")
-else:
-    # Production (Render) - Render provides DATABASE_URL automatically
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+# if os.getenv("FLASK_ENV") == "development":
+#     # Local database (dev)
+#     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("LOCAL_DATABASE_URL")
+# else:
+#     # Production (Render) - Render provides DATABASE_URL automatically
+#     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Avoids warning
 

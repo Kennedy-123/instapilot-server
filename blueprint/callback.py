@@ -1,5 +1,4 @@
-from flask import Blueprint
-from flask import request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template
 import requests
 from dotenv import load_dotenv
 import os
@@ -26,7 +25,7 @@ def callback():
         if not code or not telegram_id:
             return "Missing code or state", 400
 
-        # Exchange code for access token
+        # Exchange code for short-lived access token
         token_url = "https://graph.facebook.com/v19.0/oauth/access_token"
         params = {
             "client_id": APP_ID,
@@ -36,13 +35,26 @@ def callback():
         }
         token_res = requests.get(token_url, params=params)
         data = token_res.json()
-        
+
         if "access_token" not in data:
             return jsonify(data), 400
-        
-        access_token = data["access_token"]
-        
-        #  Get user info from Facebook Graph API
+
+        short_token = data["access_token"]
+
+        # Exchange for long-lived token
+        long_token_url = "https://graph.facebook.com/v19.0/oauth/access_token"
+        long_params = {
+            "grant_type": "fb_exchange_token",
+            "client_id": APP_ID,
+            "client_secret": APP_SECRET,
+            "fb_exchange_token": short_token,
+        }
+        long_res = requests.get(long_token_url, params=long_params)
+        long_data = long_res.json()
+
+        access_token = long_data.get("access_token", short_token)
+
+        # Get user info
         user_info_url = "https://graph.facebook.com/me"
         user_params = {
             "fields": "id,name,email",
@@ -50,7 +62,7 @@ def callback():
         }
         user_res = requests.get(user_info_url, params=user_params)
         user_data = user_res.json()
-        
+
         # Default: no Instagram ID yet
         instagram_id = None
 
@@ -77,25 +89,29 @@ def callback():
                 if "instagram_business_account" in page_info:
                     instagram_id = page_info["instagram_business_account"]["id"]
                     break  # take the first connected IG account
-        
+                
+        if not instagram_id:
+            # Notify user about missing Instagram Business/Creator account
+            no_instagram_account_notification(telegram_id)
+            return render_template("no_instagram_account.html")
+
         # Save user to database
         user = User.query.filter_by(facebook_name=user_data.get("name")).first()
-        
+
         if not user:
             new_user = User(
                 facebook_name=user_data.get("name"),
                 telegram_id=telegram_id,
-                facebook_id=instagram_id,
+                instagram_id=instagram_id,
                 facebook_access_token=access_token,
-                facebook_token_expires_at=calculate_expiry(data["expires_in"]),
                 created_at=datetime.now(timezone.utc)
             )
             db.session.add(new_user)
             db.session.commit()
         else:
-            # Update access token if user exists
+            # Update user if already exists
             user.facebook_access_token = access_token
-            user.facebook_id = instagram_id
+            user.instagram_id = instagram_id
             db.session.commit()
 
         # Notify the Telegram user
